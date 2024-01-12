@@ -14,8 +14,6 @@ type Payload = {
 }
 
 function* sendTransaction(action: Action<Payload>) {
-  const provider = new JsonRpcProvider('http://localhost:8545');
-
   // this could have been passed along in a more elegant fashion,
   // but for the purpouses of this scenario it's good enough
   // @ts-ignore
