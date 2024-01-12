@@ -2,31 +2,32 @@ import { takeEvery } from 'redux-saga/effects';
 import { JsonRpcProvider, Transaction, TransactionResponse, TransactionReceipt, BrowserProvider, Signer } from 'ethers';
 
 import apolloClient from '../apollo/client';
-import { Actions } from '../types';
+import { Action, Actions } from '../types';
 import { SaveTransaction } from '../queries';
+import { navigate } from '../components/NaiveRouter';
 
-function* sendTransaction() {
+type Payload = {
+  values: {
+    recipient: string,
+    amount: bigint
+  }
+}
+
+function* sendTransaction(action: Action<Payload>) {
   const provider = new JsonRpcProvider('http://localhost:8545');
 
   // this could have been passed along in a more elegant fashion,
   // but for the purpouses of this scenario it's good enough
   // @ts-ignore
-  const walletProvider = new BrowserProvider(window.web3.currentProvider);
+  const walletProvider = new BrowserProvider(window.ethereum);
 
   const signer: Signer = yield walletProvider.getSigner();
 
-  const accounts: Array<{ address: string }> = yield provider.listAccounts();
-
-  const randomAddress = () => {
-    const min = 1;
-    const max = 19;
-    const random = Math.round(Math.random() * (max - min) + min);
-    return accounts[random].address;
-  };
+  const { recipient, amount } =  action.payload.values
 
   const transaction = {
-    to: randomAddress(),
-    value: 1000000000000000000,
+    to: recipient,
+    value: amount,
   };
 
   try {
@@ -34,7 +35,7 @@ function* sendTransaction() {
     const response: TransactionReceipt = yield txResponse.wait();
 
     const receipt: Transaction = yield response.getTransaction();
-
+    console.log('receipt', receipt)
     const variables = {
       transaction: {
         gasLimit: (receipt.gasLimit && receipt.gasLimit.toString()) || '0',
@@ -43,18 +44,18 @@ function* sendTransaction() {
         from: receipt.from,
         value: (receipt.value && receipt.value.toString()) || '',
         data: receipt.data || null,
-        chainId: (receipt.chainId && receipt.chainId.toString()) || '123456',
+        chainId: (receipt.chainId && receipt.chainId.toString()) || '1377',
         hash: receipt.hash,
       }
     };
-
     yield apolloClient.mutate({
       mutation: SaveTransaction,
       variables,
     });
 
+    yield navigate(`/transaction/${variables.transaction.hash}`);
   } catch (error) {
-    //
+    console.error('error', error)
   }
 
 }

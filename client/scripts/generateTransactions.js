@@ -27,7 +27,7 @@ const saveTransactionToDatabase = async (transaction) => {
       from: transaction.from,
       value: transaction.value && transaction.value.toString() || '',
       data: transaction.data || null,
-      chainId: transaction.chainId && transaction.chainId.toString() || '123456',
+      chainId: transaction.chainId && transaction.chainId.toString() || '1377',
       hash: transaction.hash,
     }
   };

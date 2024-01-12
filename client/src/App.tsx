@@ -1,5 +1,3 @@
-import React from 'react';
-
 import NaiveRouter from './components/NaiveRouter';
 import Navigation from './components/Navigation';
 

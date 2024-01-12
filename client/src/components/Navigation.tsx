@@ -1,18 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import Onboard, { WalletState } from '@web3-onboard/core'
+import injectedModule from '@web3-onboard/injected-wallets'
 
 import SendTransaction from './SendTransaction';
 
+const injected = injectedModule()
+
 const onboard = Onboard({
-  wallets: [],
+  wallets: [injected],
   chains: [
     {
-      id: '123456',
+      id: '1377',
       token: 'ETH',
       label: 'Local Ganache',
       rpcUrl: 'http://localhost:8545',
     },
-  ]
+  ],
 })
 
 const Navigation: React.FC = () => {
@@ -20,7 +23,6 @@ const Navigation: React.FC = () => {
 
   const handleConnect = useCallback(async () => {
     const wallets = await onboard.connectWallet();
-
     const [metamaskWallet] = wallets;
 
     if (metamaskWallet.label === 'MetaMask' && metamaskWallet.accounts[0].address) {
@@ -30,11 +32,11 @@ const Navigation: React.FC = () => {
 
   return (
     <header className="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-ful text-sm py-4 bg-gray-800">
-      <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
+      <nav className="max-w-[85rem] w-full mx-auto px-4 flex items-center justify-between">
         <div className="flex items-center justify-between">
           <a className="flex-none text-xl font-semibold dark:text-white" href=".">Transactions List</a>
         </div>
-        <div className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block">
+        <div className="hs-collapse overflow-hidden transition-all duration-300">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:pl-5">
             {wallet && (
               <>
